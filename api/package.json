@@ -35,7 +35,12 @@
     "typescript-eslint": "^8.24.1"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.0",
     "@types/express": "^5.0.0",
-    "express": "^4.21.2"
+    "cpf-cnpj-validator": "^1.0.3",
+    "express": "^4.21.2",
+    "prisma": "^6.4.0",
+    "zod": "^3.24.2",
+    "zod-validation-error": "^3.4.0"
   }
 }
