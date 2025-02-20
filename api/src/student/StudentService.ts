@@ -40,6 +40,11 @@ const update = async (ra: number, payload: StudentDTO) => {
 
 
 const remove = async (ra: number) => {
+    const found = await find(ra)
+    if (!found) {
+        return null
+    }
+
     const deleted = await prisma.student.delete({ where: { ra }})
     return deleted
 }
