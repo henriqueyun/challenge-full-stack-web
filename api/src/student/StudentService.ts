@@ -1,6 +1,5 @@
-import { Student } from '@prisma/client'
 import prisma from '../prisma'
-import CreateStudentDTO from './CreateStudentDTO'
+import StudentDTO from './StudentDTO'
 
 const findAll = async () => {
     const students = await prisma.student.findMany()
@@ -13,24 +12,26 @@ const find = async (ra: number) => {
     return student
 }
 
-const create = async (payload: CreateStudentDTO) => {
+const create = async (payload: StudentDTO) => {
     const student = await prisma.student.create({ data: payload})
     return student
 }
 
-const update = async (ra: number, payload: Student) => {
-    const found = await find(payload.ra)
+const update = async (ra: number, payload: StudentDTO) => {
+    const found = await find(ra)
     if (!found) {
         return null
     }
 
     const updated = await prisma.student.update({
         where: {
-            ra: payload.ra
+            ra
         },
         data: {
             ...payload,
-            ra: found.ra
+            cpf: found.cpf,
+            ra 
+            // guarantees that cpf couldn't be updated
         }
     })
 

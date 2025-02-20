@@ -1,20 +1,44 @@
 import { Request, Response } from 'express'
 import { fromError } from 'zod-validation-error'
 import StudentService from './StudentService'
-import CreateStudentDTO from './CreateStudentDTO'
+import StudentDTO from './StudentDTO'
 import StudentValidate from './StudentValidate'
+import { Prisma } from '@prisma/client'
 
 const findAll = async (_: Request, res: Response) => {
-    const students = await StudentService.findAll()
-    res.json(students)
+    try {
+        const students = await StudentService.findAll()
+        res.json(students)
+    } catch (err) {
+        console.error(err)
+        res.send(500)
+    }
 }
+
 const find = async (req: Request, res: Response) => {
-    res.send()
+    const ra: number = parseInt(req.params.ra)
+
+    if (!ra) {
+        res.status(400).json({ message: 'o parâmetro ra do path deve ser um inteiro'})
+        return
+    }
+
+    try {
+        const student = await StudentService.find(ra)
+        if (!student) {
+            res.status(409).json({ message: `o estudante de ${ra} não foi encontrado`})
+            return
+        }
+        res.json(student)
+    } catch (err) {
+        console.error(err)
+        res.send(500)
+    }
 }
 const create = async (req: Request, res: Response) => {
-    const payload: CreateStudentDTO = req.body
+    const payload: StudentDTO = req.body
     if (!payload) {
-        res.status(400).json({ message: 'send a payload'})
+        res.status(400).json({ message: 'envie um payload'})
         return
     }
 
@@ -25,16 +49,77 @@ const create = async (req: Request, res: Response) => {
         return
     }
 
-    const student = await StudentService.create(payload)
-    res.status(201).json(student)
+    try {
+        const student = await StudentService.create(payload)
+        res.status(201).json(student)
+    } catch (err) {
+        console.error(err)
+        const UNIQUE_CONSTRAINT_FAILED = 'P2002'
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+            if (err.code === UNIQUE_CONSTRAINT_FAILED) {
+                res.status(409).json({ message: 'CPF já cadastrado'})
+                return
+            }
+        }
+        res.send(500)
+    }    
 }
 
-const update = async (_: Request, res: Response) => {
-    res.send()
+const update = async (req: Request, res: Response) => {
+    const ra = parseInt(req.params.ra)
+
+    if (!ra) {
+        res.status(400).json({ message: 'o parâmetro ra do path deve ser um inteiro'})
+        return
+    }
+    
+    const payload: StudentDTO = req.body
+
+    if (!payload) {
+        res.status(400).json({ message: 'envie um payload'})
+        return
+    }
+
+    const result = StudentValidate.UpdateStudentDTO.safeParse(payload)
+
+    if (!result.success) {
+        res.status(400).json({ message: fromError(result.error)})
+        return
+    }
+
+    try {
+
+        const updated = await StudentService.update(ra, payload)
+        if (!updated) {
+            res.status(400).json({ message: `o estudante de ${ra} não foi encontrado`})
+            return
+        }
+        res.json(updated)
+    } catch (err) {
+        console.error(err)
+        res.send(500)
+    }
 }
 
-const remove = async (_: Request, res: Response) => {
-    res.send()
+const remove = async (req: Request, res: Response) => {
+    const ra: number = parseInt(req.params.ra)
+
+    if (!ra) {
+        res.status(400).json({ message: 'o parâmetro ra do path deve ser um inteiro'})
+        return
+    }
+
+    try {
+        const student = await StudentService.remove(ra)
+        if (!student) {
+            res.status(409).json({ message: `o estudante de ${ra} não foi encontrado`})
+            return
+        }
+        res.json(student)
+    } catch (err) {
+        console.error(err)
+        res.send(500)
+    }
 }
 
 export default {

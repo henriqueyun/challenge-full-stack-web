@@ -20,4 +20,16 @@ const CreateStudentDTO = z.object({
     })
 })
 
-export default { CreateStudentDTO }
+const UpdateStudentDTO = z.object({
+    name: z.string({
+        required_error: 'O nome é obrigatório',
+    }).nullish(),
+    email: z.string({
+        required_error: 'O e-mail é obrigatório'
+    }).email({
+        message: 'Formato do e-mail inválido'
+    }).nullish()
+})
+
+
+export default { CreateStudentDTO, UpdateStudentDTO }
