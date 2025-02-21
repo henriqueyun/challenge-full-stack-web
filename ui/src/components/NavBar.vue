@@ -12,5 +12,5 @@
 <script setup lang="ts">
   import { ref } from 'vue'
 
-  const drawer = ref(false)
+  const drawer = ref(true)
 </script>
