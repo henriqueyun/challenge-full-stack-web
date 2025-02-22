@@ -1,11 +1,11 @@
 <template>
-  <nav-bar/>
-  <v-toolbar title="Alunos"/>
+  <v-toolbar title="Alunos" />
   <v-container fluid>
     <v-row>
       <v-col>
         <v-btn
           class="flex-grow-0"
+          @click="router.replace('student-form')"
         >
           Cadastrar Aluno
         </v-btn>
@@ -28,15 +28,8 @@
 </template>
 
 <script setup lang="ts">
+import router from '@/router';
 import { ref } from 'vue';
-
-  // const headers = ref([
-  //   {title: '', key: '', align: 'start'},
-  //   {title: '', key: '', align: 'start'},
-  //   {title: '', key: '', align: 'start'},
-  //   {title: '', key: '', align: 'start'},
-  //   {title: '', key: '', align: 'start'},
-  // ])
 
   const items = ref([
     { name: "João Silva", ra: 123456, email: "joao.silva@example.com", cpf: "123.456.789-09" },
