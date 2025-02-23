@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
-import { fromError } from 'zod-validation-error'
 import StudentService from './StudentService'
 import StudentDTO from './StudentDTO'
 import StudentValidate from './StudentValidate'
 import { Prisma } from '@prisma/client'
+import handleUniqueFieldsError from './error/handleUniqueFieldsError'
 
 const findAll = async (_: Request, res: Response) => {
     try {
@@ -45,7 +45,7 @@ const create = async (req: Request, res: Response) => {
     const result = StudentValidate.CreateStudentDTO.safeParse(payload)
 
     if (!result.success) {
-        res.status(400).json({ message: fromError(result.error)})
+        res.status(400).json({ error: result.error})
         return
     }
 
@@ -54,15 +54,12 @@ const create = async (req: Request, res: Response) => {
         res.status(201).json(student)
     } catch (err) {
         console.error(err)
-        const UNIQUE_CONSTRAINT_FAILED = 'P2002'
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
-            if (err.code === UNIQUE_CONSTRAINT_FAILED) {
-                res.status(409).json({ message: 'CPF já cadastrado'})
-                return
-            }
+            handleUniqueFieldsError(err, res)
+            return
         }
         res.send(500)
-    }    
+    }
 }
 
 const update = async (req: Request, res: Response) => {
@@ -83,7 +80,7 @@ const update = async (req: Request, res: Response) => {
     const result = StudentValidate.UpdateStudentDTO.safeParse(payload)
 
     if (!result.success) {
-        res.status(400).json({ message: fromError(result.error)})
+        res.status(400).json({ error: result.error})
         return
     }
 
