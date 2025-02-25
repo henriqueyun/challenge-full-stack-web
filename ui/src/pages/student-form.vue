@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar :title="isCreate() ? 'Cadastro' : 'Edição'" />	
+  <v-toolbar :title="`${isCreate() ? 'Cadastro' : 'Edição'} de Aluno`" />	
   <v-container
     fluid
     class="ga-5"
@@ -7,9 +7,10 @@
     <v-dialog
       v-model="showSuccessDialog"
       max-width="400"
+      persistent
     >
       <v-card
-        :title="successMsg"
+        :title="`O aluno foi ${method === 'create' ? 'cadastrado' : 'editado' }`"
       >
         <template #actions>
           <v-btn @click="router.replace('/')">
@@ -38,12 +39,16 @@
     <v-text-field 
       v-model="student.name"
       label="Nome"
+      :loading="fieldsLoading"
+      :disabled="fieldsLoading"
       :error-messages="$v.name.$errors.map(e => e.$message).join('; ')"
       @input="$v.name.$touch"
     />
     <v-text-field 
       v-model="student.email"
       label="E-mail"
+      :loading="fieldsLoading"
+      :disabled="fieldsLoading"
       :error-messages="$v.email.$errors.map(e => e.$message).join('; ')"
       @input="$v.email.$touch"
     />
@@ -57,12 +62,15 @@
       v-else
       v-model.number="ra"
       disabled
+      :loading="fieldsLoading"
       label="RA"
     />
     <v-text-field 
       v-model="student.cpf"
       v-mask="['###########']"
       label="CPF"
+      :loading="fieldsLoading"
+      :disabled="fieldsLoading"
       :error-messages="$v.cpf.$errors.map(e => e.$message).join('; ')"
       @input="$v.cpf.$touch"
     />
@@ -90,26 +98,61 @@
 
 <script lang="ts" setup>
 import studentsService from '@/services/students-service'
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, required } from '@vuelidate/validators'
 import CreateStudentDTO from '@/types/CreateStudentDTO'
 import { ZodError } from 'zod'
 import router from '@/router'
+import { useRoute } from 'vue-router'
 
-  const method = 'create'
-
+  const route = useRoute()
+  
+  const method = route.path === '/student-form/create' ? 'create' : 'update'
+  
   const ra = ref()
 
+  const fieldsLoading = ref(false)
+  const getStudent = async () => {
+    if (method !== 'create') {
+      
+      const pathRA = route.params.ra
+      if (!pathRA) {
+        router.replace('/')
+      }
+
+      try {
+        fieldsLoading.value = true
+        const response = await studentsService.find(pathRA.toString())
+        if (response.ok) {
+          const data = await response.json() as StudentDTO
+          ra.value = pathRA
+          Object.assign(student, data)
+        }
+      } catch (err) {
+        console.error(err)
+        errorMessages.push('Erro ao buscar informações para edição do aluno')
+      } finally {
+        fieldsLoading.value = false
+      }
+    }
+  }
+
+  onMounted(() => {
+    getStudent()
+  })
+
+
   const student = reactive<CreateStudentDTO>({
-    name: 'Henrique',
-    cpf: '123',
-    email: 'user@email.com'
+    name: '',
+    cpf: '',
+    email: ''
   })
 
   const mandatoryFieldMsg = 'O campo é obrigatório'
 
   import { cpf } from 'cpf-cnpj-validator'
+  import StudentDTO from '@/types/StudentDTO'
 
   const isCPFValid = (value: string) => cpf.isValid(value)
 
@@ -124,25 +167,15 @@ import router from '@/router'
   const isFormValid = computed(() => !$v.value.$invalid)
 
   const showSuccessDialog = ref(false)
-  const successMsg = ref('O aluno foi cadastrado')
 
   const showErrorDialog = ref(false)
   const errorMessages = reactive<string[]>([])
 
   const isLoading = ref(false)
 
-  const performAction = async () => {
-    try {
-      errorMessages.length = 0
-      isLoading.value = true
-      if (method === 'create') {
-        const response = await studentsService.create(student)
-        if (response.ok) {
-          showSuccessDialog.value = true
-          return
-        }
-
-        const expectedStatus = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleError = async (response: any) => {
+    const expectedStatus = {
           '400': async () => {
             const data = await response.json() as { error: ZodError }
             const errors = data.error.issues.map(i => i.message).join(';')
@@ -164,9 +197,31 @@ import router from '@/router'
         } catch (err) {          
           console.error(err)
         }
+  }
+
+  const performAction = async () => {
+    try {
+      errorMessages.length = 0
+      isLoading.value = true
+      if (method === 'create') {
+        const response = await studentsService.create(student)
+        if (response.ok) {
+          showSuccessDialog.value = true
+          return
+        }
+        handleError(response)
         showErrorDialog.value = true
         return
       }
+
+      const response = await studentsService.update(ra.value, student)
+        if (response.ok) {
+          showSuccessDialog.value = true
+          return
+        }
+        handleError(response)
+        showErrorDialog.value = true
+        return
     } catch (err) {
       console.error(err)
     } finally {

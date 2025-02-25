@@ -1,6 +1,6 @@
-import Student from "../types/Student"
+import CreateStudentDTO from "../types/CreateStudentDTO"
 
-const create = async (data: Student) => {
+const create = async (data: CreateStudentDTO) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/students`,
         {
             method: 'POST',
@@ -8,6 +8,28 @@ const create = async (data: Student) => {
             headers: {
                 "Content-Type": "application/json"
             }
+        }
+    )
+    return response
+}
+
+const update = async (ra: string | number, data: CreateStudentDTO) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/students/${ra}`,
+        {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+    )
+    return response
+}
+
+const remove = async (ra: string | number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/students/${ra}`,
+        {
+            method: 'DELETE',
         }
     )
     return response
@@ -22,7 +44,19 @@ const findAll = async () => {
     return response
 }
 
+const find = async (ra: string | number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/students/${ra}`,
+        {
+            method: 'GET',
+        }
+    )
+    return response
+}
+
 export default {
     create,
-    findAll
+    update,
+    remove,
+    findAll,
+    find
 }

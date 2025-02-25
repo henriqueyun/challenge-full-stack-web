@@ -5,12 +5,30 @@
  */
 
 // Composables
+import Students from '@/components/students.vue'
+import StudentForm from '@/pages/student-form.vue'
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import { routes } from 'vue-router/auto-routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  routes: [
+    {
+      path: '/',
+      component: Students
+    },
+    {
+      path: '/student-form/create',
+      component: StudentForm
+    },
+    {
+      path: '/student-form/update/:ra',
+      component: StudentForm
+    },
+    { 
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
+    },
+  ]
 })
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
