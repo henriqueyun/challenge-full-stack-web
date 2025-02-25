@@ -18,7 +18,13 @@ const CreateStudentDTO = z.object({
     }).email({
         message: 'Formato do e-mail inválido'
     })
-})
+}).refine(
+    (data) => !('ra' in data),
+    {
+      message: 'O ra não deve estar presente no cadastro',
+      path: ['email'], // Define o caminho do erro
+    }
+  )
 
 const UpdateStudentDTO = z.object({
     name: z.string({

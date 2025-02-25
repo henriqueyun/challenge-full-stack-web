@@ -49,17 +49,15 @@
     />
     <v-text-field
       v-if="isCreate()"
-      model-value="(Criado automáticamente)"
+      model-value="(Gerado automáticamente)"
       disabled
       label="RA"
     />
     <v-text-field
       v-else
-      v-model.number="student.ra"
+      v-model.number="ra"
       disabled
       label="RA"
-      :error-messages="$v.ra.$errors.map(e => e.$message).join('; ')"
-      @input="$v.ra.$touch"
     />
     <v-text-field 
       v-model="student.cpf"
@@ -95,15 +93,16 @@ import studentsService from '@/services/students-service'
 import { computed, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, required } from '@vuelidate/validators'
-import Student from '@/types/Student'
+import CreateStudentDTO from '@/types/CreateStudentDTO'
 import { ZodError } from 'zod'
 import router from '@/router'
 
   const method = 'create'
 
-  const student = reactive<Student>({
+  const ra = ref()
+
+  const student = reactive<CreateStudentDTO>({
     name: 'Henrique',
-    ra: 0,
     cpf: '123',
     email: 'user@email.com'
   })
@@ -116,8 +115,7 @@ import router from '@/router'
 
   const rules = {
     name: { required: helpers.withMessage(mandatoryFieldMsg, required) },
-    ra: { required: helpers.withMessage(mandatoryFieldMsg, required) },
-    cpf: { required: helpers.withMessage(mandatoryFieldMsg, required),  isCPFValid: helpers.withMessage('CPF inválido. Insira somente números.', isCPFValid)},
+    cpf: { required: helpers.withMessage(mandatoryFieldMsg, required),  isCPFValid: helpers.withMessage('CPF inválido', isCPFValid)},
     email: { required: helpers.withMessage(mandatoryFieldMsg, required), email: helpers.withMessage('Formato do e-mail inválido', email) }
   }
 

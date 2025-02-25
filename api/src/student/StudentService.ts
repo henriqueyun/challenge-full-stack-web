@@ -13,7 +13,7 @@ const find = async (ra: number) => {
 }
 
 const create = async (payload: StudentDTO) => {
-    const student = await prisma.student.create({ data: payload})
+    const student = await prisma.student.create({ data: payload })
     return student
 }
 
