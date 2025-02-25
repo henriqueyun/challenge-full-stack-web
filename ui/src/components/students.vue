@@ -23,6 +23,7 @@
     </v-row>
     <v-data-table 
       :items="students"
+      :headers="headers"
       no-data-text="Sem alunos disponíveis"
     />
   </v-container>
@@ -31,11 +32,22 @@
 <script setup lang="ts">
 import router from '@/router'
 import studentsService from '@/services/students-service'
-import CreateStudentDTO from '@/types/CreateStudentDTO'
+import StudentDTO from '@/types/StudentDTO'
 import { onMounted, reactive, ref } from 'vue'
 
-  const students = reactive<CreateStudentDTO[]>([])
+  const students = reactive<StudentDTO[]>([])
   const isLoading = ref(false)
+
+  const headers = [
+    { title: 'Nome', key: 'name'},
+    { title: 'E-mail', key: 'email'},
+    { title: 'RA', key: 'ra'},
+    { title: 'CPF', key: 'cpf'},
+  ]
+
+  function formatCPF(cpf: string): string {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  }
 
   onMounted(() => {
     isLoading.value = true
@@ -45,8 +57,18 @@ import { onMounted, reactive, ref } from 'vue'
         if (!response.ok) {
           throw new Error('Erro desconhecido')
         }
-        const data = await response.json() as CreateStudentDTO[]
-        students.push(...data)
+
+        const data = await response.json() as StudentDTO[]
+        const formatted = data.map(s => {
+          s.cpf = formatCPF(s.cpf)
+          s.ra = s.ra.toLocaleString('pt-BR', {
+            minimumIntegerDigits: 8,
+            useGrouping: false
+          })
+          return s
+        })
+
+        students.push(...formatted)
       } catch (err) {
         console.error(err) 
       } finally {
