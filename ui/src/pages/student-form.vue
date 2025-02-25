@@ -102,8 +102,6 @@
 <script lang="ts" setup>
 import studentsService from '@/services/students-service'
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
-import { email, helpers, required } from '@vuelidate/validators'
 import CreateStudentDTO from '@/types/CreateStudentDTO'
 import { ZodError } from 'zod'
 import router from '@/router'
@@ -156,6 +154,8 @@ import { useRoute } from 'vue-router'
 
   import { cpf } from 'cpf-cnpj-validator'
   import StudentDTO from '@/types/StudentDTO'
+import useVuelidate from '@vuelidate/core'
+import { email, helpers, required } from '@vuelidate/validators'
 
   const isCPFValid = (value: string) => cpf.isValid(value)
 

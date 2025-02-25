@@ -12,17 +12,22 @@
       </v-col>
       <v-col class="d-flex ga-5">
         <v-text-field
+          v-model="searchText"
           label="Digite sua busca"
+          clearable
+          @click:clear="searchStudents()"
         />
         <v-btn
           class="flex-grow-0"
+          :disabled="!searchText"
+          @click="searchStudents()"
         >
           Pesquisar
         </v-btn>
       </v-col>
     </v-row>
     <v-data-table 
-      :items="students"
+      :items="!!searchedStudents.length ? searchedStudents : students"
       :headers="headers"
       no-data-text="Sem alunos disponíveis"
     >
@@ -58,6 +63,12 @@
       </template>
     </v-data-table>
   </v-container>
+  <v-snackbar
+    v-model="showEmptySearch"
+    timeout="4000"
+  >
+    Nenhum aluno corresponde à busca
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +78,7 @@ import StudentDTO from '@/types/StudentDTO'
 import { onMounted, reactive, ref } from 'vue'
 
   const students = reactive<StudentDTO[]>([])
+  const searchedStudents = reactive<StudentDTO[]>([])
   const isLoading = ref(false)
 
   const headers = [
@@ -100,6 +112,28 @@ import { onMounted, reactive, ref } from 'vue'
 
   function formatCPF(cpf: string): string {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  }
+
+  const searchText = ref('')
+  const showEmptySearch = ref(false)
+
+  const searchStudents = () => {
+    if (!searchText.value) {
+      return
+    }
+    searchedStudents.length = 0
+    const filtered = [...students.filter(s => {
+      return s.name
+        .toLowerCase()
+        .includes(searchText.value.toLowerCase())
+    })]
+
+    if (!filtered.length) {
+      showEmptySearch.value = true
+      return
+    }
+    searchedStudents.push(...filtered)
+    searchText.value = ''
   }
 
   const getData = async () => {

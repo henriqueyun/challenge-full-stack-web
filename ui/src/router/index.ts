@@ -5,7 +5,7 @@
  */
 
 // Composables
-import Students from '@/components/students.vue'
+import Students from '@/pages/students.vue'
 import StudentForm from '@/pages/student-form.vue'
 import { createRouter, createWebHistory } from 'vue-router/auto'
 
