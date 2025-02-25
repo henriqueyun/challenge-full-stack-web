@@ -39,6 +39,7 @@
     <v-text-field 
       v-model="student.name"
       label="Nome"
+      placeholder="Informe apenas um e-mail"
       :loading="fieldsLoading"
       :disabled="fieldsLoading"
       :error-messages="$v.name.$errors.map(e => e.$message).join('; ')"
@@ -47,6 +48,7 @@
     <v-text-field 
       v-model="student.email"
       label="E-mail"
+      placeholder="Informe apenas um e-mail"
       :loading="fieldsLoading"
       :disabled="fieldsLoading"
       :error-messages="$v.email.$errors.map(e => e.$message).join('; ')"
@@ -69,6 +71,7 @@
       v-model="student.cpf"
       v-mask="['###########']"
       label="CPF"
+      placeholder="Informe o número do documento"
       :loading="fieldsLoading"
       :disabled="fieldsLoading"
       :error-messages="$v.cpf.$errors.map(e => e.$message).join('; ')"

@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar title="Alunos" />
+  <v-toolbar title="Consultas de Alunos" />
   <v-container fluid>
     <v-row>
       <v-col>
