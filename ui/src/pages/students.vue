@@ -37,28 +37,23 @@
             variant="outlined"
             :loading="isIndexLoading(index)"
             :disabled="isIndexLoading(index)"
-            @click="showConfirmDialog = true"
           >Excluir</v-btn>
         </span>
         <v-dialog
-          v-model="showConfirmDialog"
-          max-width="500"
+          :dialog="showConfirmDialog"
+          text="Confirma a exclusão?"
         >
-          <v-card
-            max-width="400"
-            title="Deseja mesmo excluir o aluno?"
+          <v-btn
+            variant="outlined"
+            @click="remove(item.ra, index)"
           >
-            <template #actions>
-              <v-btn
-                @click="remove(item.ra, index)"
-              >
-                Confirmar
-              </v-btn>
-              <v-btn @click="showConfirmDialog = false">
-                Cancelar
-              </v-btn>
-            </template>
-          </v-card>
+            Confirmar
+          </v-btn>
+          <v-btn
+            @click="showConfirmDialog = false"
+          >
+            Cancelar
+          </v-btn>
         </v-dialog>
       </template>
     </v-data-table>
@@ -73,7 +68,6 @@ import { onMounted, reactive, ref } from 'vue'
 
   const students = reactive<StudentDTO[]>([])
   const isLoading = ref(false)
-  const showConfirmDialog = ref(false)
 
   const headers = [
     { title: 'Nome', key: 'name'},
@@ -89,7 +83,10 @@ import { onMounted, reactive, ref } from 'vue'
     return removedIndex.value === index
   }
   
+  const showConfirmDialog = ref(false)
+
   async function remove(ra: string | number, index: number) {
+    console.log('man???')
     removedIndex.value = index
     try {
       await studentsService.remove(ra)

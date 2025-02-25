@@ -73,7 +73,7 @@
       label="CPF"
       placeholder="Informe o número do documento"
       :loading="fieldsLoading"
-      :disabled="fieldsLoading"
+      :disabled="fieldsLoading || method !== 'create'"
       :error-messages="$v.cpf.$errors.map(e => e.$message).join('; ')"
       @input="$v.cpf.$touch"
     />
@@ -147,9 +147,9 @@ import { useRoute } from 'vue-router'
 
 
   const student = reactive<CreateStudentDTO>({
-    name: '',
-    cpf: '',
-    email: ''
+    name: 'Oliver Noah Barros',
+    cpf: '94220758666',
+    email: 'victor_enrico_rodrigues@purkyt.com'
   })
 
   const mandatoryFieldMsg = 'O campo é obrigatório'
@@ -226,6 +226,7 @@ import { useRoute } from 'vue-router'
         showErrorDialog.value = true
         return
     } catch (err) {
+      showErrorDialog.value = true
       console.error(err)
     } finally {
       isLoading.value = false
