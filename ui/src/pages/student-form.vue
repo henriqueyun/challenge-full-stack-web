@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar :title="getTitle()" />	
+  <v-toolbar :title="isCreate() ? 'Cadastro' : 'Edição'" />	
   <v-container
     fluid
     class="ga-5"
@@ -10,7 +10,13 @@
     >
       <v-card
         :title="successMsg"
-      />
+      >
+        <template #actions>
+          <v-btn @click="router.replace('/')">
+            Ver alunos
+          </v-btn>
+        </template>
+      </v-card>
     </v-dialog>
     <v-dialog
       v-model="showErrorDialog"
@@ -32,25 +38,34 @@
     <v-text-field 
       v-model="student.name"
       label="Nome"
-      :error-messages="$v.name.$errors.map(e => e.$message).join(';')"
+      :error-messages="$v.name.$errors.map(e => e.$message).join('; ')"
       @input="$v.name.$touch"
     />
     <v-text-field 
       v-model="student.email"
       label="E-mail"
-      :error-messages="$v.email.$errors.map(e => e.$message).join(';')"
+      :error-messages="$v.email.$errors.map(e => e.$message).join('; ')"
       @input="$v.email.$touch"
     />
-    <v-text-field 
-      v-model.number="student.ra"
+    <v-text-field
+      v-if="isCreate()"
+      model-value="(Criado automáticamente)"
+      disabled
       label="RA"
-      :error-messages="$v.ra.$errors.map(e => e.$message).join(';')"
+    />
+    <v-text-field
+      v-else
+      v-model.number="student.ra"
+      disabled
+      label="RA"
+      :error-messages="$v.ra.$errors.map(e => e.$message).join('; ')"
       @input="$v.ra.$touch"
     />
     <v-text-field 
       v-model="student.cpf"
+      v-mask="['###########']"
       label="CPF"
-      :error-messages="$v.cpf.$errors.map(e => e.$message).join(';')"
+      :error-messages="$v.cpf.$errors.map(e => e.$message).join('; ')"
       @input="$v.cpf.$touch"
     />
     <span
@@ -68,7 +83,7 @@
       >
         {{ method === 'create' ? 'Cadastrar' : 'Editar' }}
       </v-btn>
-      <v-btn>
+      <v-btn @click="router.replace('/')">
         Cancelar
       </v-btn>
     </span>
@@ -82,29 +97,34 @@ import { useVuelidate } from '@vuelidate/core'
 import { email, helpers, required } from '@vuelidate/validators'
 import Student from '@/types/Student'
 import { ZodError } from 'zod'
+import router from '@/router'
 
   const method = 'create'
+
   const student = reactive<Student>({
     name: 'Henrique',
-    ra: 123,
+    ra: 0,
     cpf: '123',
     email: 'user@email.com'
   })
 
   const mandatoryFieldMsg = 'O campo é obrigatório'
 
+  import { cpf } from 'cpf-cnpj-validator'
+
+  const isCPFValid = (value: string) => cpf.isValid(value)
+
   const rules = {
     name: { required: helpers.withMessage(mandatoryFieldMsg, required) },
     ra: { required: helpers.withMessage(mandatoryFieldMsg, required) },
-    cpf: { required: helpers.withMessage(mandatoryFieldMsg, required) },
-    email: { required: helpers.withMessage(mandatoryFieldMsg, required), email }
+    cpf: { required: helpers.withMessage(mandatoryFieldMsg, required),  isCPFValid: helpers.withMessage('CPF inválido. Insira somente números.', isCPFValid)},
+    email: { required: helpers.withMessage(mandatoryFieldMsg, required), email: helpers.withMessage('Formato do e-mail inválido', email) }
   }
 
   const $v = useVuelidate(rules, student)
 
   const isFormValid = computed(() => !$v.value.$invalid)
 
-  
   const showSuccessDialog = ref(false)
   const successMsg = ref('O aluno foi cadastrado')
 
@@ -146,21 +166,17 @@ import { ZodError } from 'zod'
         } catch (err) {          
           console.error(err)
         }
-
-
         showErrorDialog.value = true
         return
       }
-      alert ('O editar ainda não foi implementado')
     } catch (err) {
       console.error(err)
     } finally {
       isLoading.value = false
     }
   }
-
-  const getTitle = () => {
-    const action = method === 'create' ? 'Cadastro' : 'Edição'
-    return `${action} de Aluno`
+  
+  const isCreate = () => {
+    return method === 'create'
   }
 </script>
