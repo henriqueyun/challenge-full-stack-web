@@ -1,6 +1,29 @@
-# Vuetify (Default)
+# Students UI
 
-This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
+Esse é um client simples para manter as informações sobre alunos em conjunto com um serviço back-end.
+
+## Requisitos
+
+- Node.js [v18.20.6];
+- Npm [10.8.2];
+
+## Rodando
+
+Primeiro, instale as dependências como o comando:
+```sh
+npm install
+```
+
+Para subir o projeto basta utilizar o comando:
+```
+npm run dev
+```
+
+### Variáveis de Ambiente
+
+O repositório contém um arquivo [.env]("./.env") com valores padrão de desenvolvimento para as variáveis de ambiente. Mude-as caso a porta padrão da aplicação já esteja em uso.
+
+> O conteúdo abaixo é do README.md padrão do Vuetify
 
 ## ❗️ Important Links
 
