@@ -145,17 +145,17 @@ import { useRoute } from 'vue-router'
 
 
   const student = reactive<CreateStudentDTO>({
-    name: 'Oliver Noah Barros',
-    cpf: '94220758666',
-    email: 'victor_enrico_rodrigues@purkyt.com'
+    name: '',
+    cpf: '',
+    email: ''
   })
 
   const mandatoryFieldMsg = 'O campo é obrigatório'
 
   import { cpf } from 'cpf-cnpj-validator'
   import StudentDTO from '@/types/StudentDTO'
-import useVuelidate from '@vuelidate/core'
-import { email, helpers, required } from '@vuelidate/validators'
+  import useVuelidate from '@vuelidate/core'
+  import { email, helpers, required } from '@vuelidate/validators'
 
   const isCPFValid = (value: string) => cpf.isValid(value)
 
